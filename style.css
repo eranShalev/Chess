@@ -1,0 +1,17 @@
+td {
+    border: 1px black solid;
+    width: 100px;
+    height: 100px;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+.black-tile {
+    background-color: black;
+}
+
+.white-tile {
+    background-color: white;
+}
