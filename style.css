@@ -9,9 +9,16 @@ table {
 }
 
 .black-tile {
-    background-color: black;
+    background-color: #3a3d4d;
 }
 
 .white-tile {
-    background-color: white;
+    background-color: #c3b390;
+}
+
+.table-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
