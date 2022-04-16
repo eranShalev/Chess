@@ -6,8 +6,11 @@ td {
 
 table {
     border-collapse: collapse;
+    background-color: #301e03;
 }
-
+th {
+    padding: 15px 25px;
+}
 .black-tile {
     background-color: #3a3d4d;
 }

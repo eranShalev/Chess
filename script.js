@@ -10,6 +10,8 @@ window.onload = () => {
 
     main_container.appendChild(play_board);
 
+    generateHeaders(play_board, true);
+
     for (let i = 8; i > 0; i--)
     {
         let row = document.createElement("tr");
@@ -20,13 +22,25 @@ window.onload = () => {
     let empty_header = document.createElement("th");
     play_board.appendChild(empty_header);
 
-    for (let i = 0; i < 8; i++)
-    {
-        let row_header = document.createElement("th");
-        row_header.textContent = String.fromCharCode(('a'.charCodeAt(0) + i));
-        play_board.appendChild(row_header);
-    }
+    generateHeaders(play_board, false);
+}
 
+function generateHeaders(board, isUp)
+{
+    let offset = isUp ? 1 : 0;
+    let max_range = isUp ? 9 : 8
+
+    for (let i=0; i < max_range; i++)
+    {
+        let header = document.createElement("th");
+      
+        header.textContent = String.fromCharCode(('a'.charCodeAt(0) + i - offset));
+        if (isUp && i === 0)
+        {
+            header.textContent = "";
+        }
+        board.appendChild(header);
+    }
 }
 
 function chessRow(row, index)
@@ -50,6 +64,9 @@ function chessRow(row, index)
 
         row.appendChild(tile);
     }
+    
+    let end_header = document.createElement("th");
+    end_header.textContent = index;
+    row.appendChild(end_header);
 }
-
 
