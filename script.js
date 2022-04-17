@@ -1,5 +1,6 @@
 window.onload = () => {
 
+    let dimensions = 8;
     let main_container = document.createElement("div");
 
     main_container.className = "table-container";
@@ -10,32 +11,26 @@ window.onload = () => {
 
     main_container.appendChild(play_board);
 
-    generateHeaders(play_board, true);
+    generateHeaders(play_board, dimensions + 1);
 
-    for (let i = 8; i > 0; i--)
+    for (let i = dimensions; i > 0; i--)
     {
         let row = document.createElement("tr");
         play_board.appendChild(row);
-        chessRow(row, i);
+        chessRow(row, i, dimensions);
     }
 
-    let empty_header = document.createElement("th");
-    play_board.appendChild(empty_header);
-
-    generateHeaders(play_board, false);
+    generateHeaders(play_board, dimensions + 1);
 }
 
-function generateHeaders(board, isUp)
+function generateHeaders(board, max_range)
 {
-    let offset = isUp ? 1 : 0;
-    let max_range = isUp ? 9 : 8
-
     for (let i=0; i < max_range; i++)
     {
         let header = document.createElement("th");
       
-        header.textContent = String.fromCharCode(('a'.charCodeAt(0) + i - offset));
-        if (isUp && i === 0)
+        header.textContent = String.fromCharCode(('a'.charCodeAt(0) + i - 1));
+        if (i === 0)
         {
             header.textContent = "";
         }
@@ -43,13 +38,13 @@ function generateHeaders(board, isUp)
     }
 }
 
-function chessRow(row, index)
+function chessRow(row, index, dimensions)
 {
     let row_header = document.createElement("th");
     row_header.textContent = index;
     row.appendChild(row_header);
 
-    for (let i = 0; i < 8; i++)
+    for (let i = 0; i < dimensions; i++)
     {
         let tile = document.createElement("td");
         if (!(index%2))
