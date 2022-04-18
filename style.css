@@ -1,7 +1,8 @@
 td {
   border: 1px black solid;
-  width: 100px;
-  height: 100px;
+  width: 60px;
+  height: 60px;
+  text-align: center;
 }
 
 table {
@@ -25,4 +26,12 @@ th {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.selected {
+  border: 1px red solid;
+}
+
+.optional-move {
+  border: 1px cyan solid;
 }
