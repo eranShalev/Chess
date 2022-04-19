@@ -8,17 +8,17 @@ td {
 table {
   border-spacing: 0;
   /* border-collapse: collapse; */
-  background-color: #301e03;
+  background-color: #661f34;
 }
 th {
   padding: 15px 25px;
 }
 .black-tile {
-  background-color: #3a3d4d;
+  background-color: #2e3452;
 }
 
 .white-tile {
-  background-color: #c3b390;
+  background-color: #d3ccbc;
 }
 
 .table-container {
@@ -30,8 +30,9 @@ th {
 
 .selected {
   border: 1px red solid;
+  /* background-color: rgb(85, 211, 127); */
 }
 
 .optional-move {
-  border: 1px cyan solid;
+  background-color: #ccdd35;
 }
