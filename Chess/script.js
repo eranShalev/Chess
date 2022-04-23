@@ -24,7 +24,8 @@ class BoardData {
 
     let board = Array(DIMENSIONS * DIMENSIONS).fill(null);
 
-    for (let colIndex = 0; colIndex < DIMENSIONS; colIndex++)
+    // Makes a starting chess board
+    for (let colIndex = 0; colIndex < DIMENSIONS; colIndex++) 
     {
       board[colIndex + DIMENSIONS] = new Piece(1, colIndex, WHITE_PLAYER, "pawn");
 
@@ -34,9 +35,6 @@ class BoardData {
 
       board[colIndex + DIMENSIONS * (DIMENSIONS - 1)] = new Piece(DIMENSIONS - 1, colIndex, BLACK_PLAYER, values[colIndex]);
     }
-
-    board[5 + DIMENSIONS * 2] = new Piece(2, 5, BLACK_PLAYER, "king");
-
     return board;
   }
 
@@ -51,21 +49,6 @@ class BoardData {
       throw new UserException("Out of Bounds");
     }
   }
-
-  MovePiece(piece, newRow, newCol)
-  {
-    let image = document.getElementById(String(piece.row + "-" + piece.col)).getElementsByTagName("img")[0];
-
-    let newTile = document.getElementById(String(newRow + "-" + newCol));
-
-    image.parentNode.removeChild(image);
-    newTile.removeChild(newTile.getElementsByTagName("img")[0]);
-    newTile.appendChild(image);
-
-
-    this.board[newRow * DIMENSIONS + newCol] = new Piece(newRow, newCol, piece.color, piece.type);
-    this.board[piece.row * DIMENSIONS + piece.row] = null;
-  }
 }
 
 let chessBoard = new BoardData();
@@ -78,7 +61,7 @@ window.onload = () => {
   let play_table = document.createElement("table");
 
   main_container.appendChild(play_table);
-  generateHeaders(play_table);
+  generateHeaders(play_table); //The headers are used for coordinates 
 
   for (let i = DIMENSIONS - 1; i >= 0; i--) {
     let row = document.createElement("tr");
@@ -87,18 +70,11 @@ window.onload = () => {
   }
 
   generateHeaders(play_table);
-
 };
 
 function generateHeaders(board) {
-  for (let i = 0; i < DIMENSIONS; i++) {
-    let header = document.createElement("th");
-
-    header.textContent = String.fromCharCode("a".charCodeAt(0) + i - 1);
-    if (i === 0) {
-      header.textContent = "";
-    }
-    board.appendChild(header);
+  for (let i = 0; i < DIMENSIONS+1; i++) {
+    addHeader(board, (i === 0) ? "" : String.fromCharCode("a".charCodeAt(0) + i - 1));
   }
 }
 
@@ -107,54 +83,55 @@ function getImageSrc(type, color)
   return "assets/" + color + "_" + type + ".png";
 }
 
-function chessRow(row, index) {
+function addHeader(parentNode, content)
+{
   let row_header = document.createElement("th");
-  row_header.textContent = index;
-  row.appendChild(row_header);
+  row_header.textContent = content;
+  parentNode.appendChild(row_header);
+}
 
-  for (let i = 0; i < DIMENSIONS; i++) {
+function chessRow(row, rowIndex) {
+  addHeader(row, rowIndex);
+  for (let col = 0; col < DIMENSIONS; col++) {
     let tile = document.createElement("td");
-    let piece =chessBoard.board[index * DIMENSIONS + i];
+    let piece = chessBoard.board[rowIndex * DIMENSIONS + col];
     
-    if (piece)
+    if (piece) // If a chess piece exists we need an image for it
     {
       let image = document.createElement("img");
       image.src = getImageSrc(piece.type, piece.color);
       tile.appendChild(image);      
     }
 
-    if (!(index % 2)) {
-      tile.classList.add(i % 2 ? "black-tile" : "white-tile");
+    if (!(rowIndex % 2)) {
+      tile.classList.add(col % 2 ? "black-tile" : "white-tile");
     } else {
-      tile.classList.add(i % 2 ? "white-tile" : "black-tile");
+      tile.classList.add(col % 2 ? "white-tile" : "black-tile");
     }
 
-    tile.setAttribute("id", String(index + "-" + i));
+    tile.setAttribute("id", String(rowIndex + "-" + col));
 
     tile.addEventListener("click", () => {
-      tileClicked(index, i);
+      tileClicked(rowIndex, col);
     });
 
     row.appendChild(tile);
   }
-
-  let end_header = document.createElement("th");
-  end_header.textContent = index;
-  row.appendChild(end_header);
+  addHeader(row, rowIndex);
 }
 
 function forwardMove(row, col, color)
 {
-  if (color === WHITE_PLAYER)
+  if (color === WHITE_PLAYER) //White pawns move up and black pawns move down
   {
-    if (row < DIMENSIONS - 1 && chessBoard.getPiece(row + 1,  col) === null)
+    if (row < DIMENSIONS - 1)
     {
       return String((row + 1) + "-" + col + ",");
     }
   }
   else
   {
-    if (row > 0 && chessBoard.getPiece(row - 1, col) === null)
+    if (row > 0)
     {
       return String ((row - 1) + "-" + col + ",");
     }
@@ -168,7 +145,8 @@ function pawnMoves(pawn)
 
   if (cords !== "")
   {
-    if (pawn.color === WHITE_PLAYER && pawn.row === 1)
+    // Checks for double move at start of game
+    if (pawn.color === WHITE_PLAYER && pawn.row === 1) 
     {
       cords += forwardMove(pawn.row + 1, pawn.col, pawn.color);
     }
@@ -191,59 +169,30 @@ function rookMoves(rook)
   let col = rook.col;
   let row = rook.row;
 
-  while (col > 0)
+  //We split the movement to 4 directions because it will be easier later to detect other pieces with this method
+  while (col > 0) //scans to the left
   {
-     if (chessBoard.getPiece(rook.row, col - 1) === null)
-    {
-      cords += String((rook.row) + "-"  +(col - 1) + ",");
-    }
-    else
-    {
-      break;
-    }
-
-    col--;
+     cords += String((rook.row) + "-"  +(col - 1) + ",");
+     col--;
   }
 
   col = rook.col;
-  while (col < DIMENSIONS - 1)
+  while (col < DIMENSIONS - 1) //scans to the right
   {
-    if (chessBoard.getPiece(rook.row, col + 1) === null)
-    {
       cords += String((rook.row) + "-" + (col + 1) + ",");
-    }
-    else
-    {
-      break;
-    }
-
-    col++;
+      col++;
   }
 
-  while (row < DIMENSIONS - 1)
+  while (row < DIMENSIONS - 1) //scans upward
   {
-    if (chessBoard.getPiece(row + 1, rook.col) === null)
-    {
       cords += String((row + 1) + "-" + (rook.col) + ",");
-    }
-    else
-    {
-      break;
-    }
-    row++;
+      row++;
   }
 
   row = rook.row;
-  while (row > 0)
+  while (row > 0) //scans downward
   {
-    if (chessBoard.getPiece(row - 1, rook.col) === null)
-    {
-      cords += String((row - 1) + "-" + (rook.col) + ",");
-    }
-    else
-    {
-      break;
-    }
+    cords += String((row - 1) + "-" + (rook.col) + ",");
     row--;
   }
 
@@ -256,19 +205,12 @@ function bishopMoves(bishop)
   let col = bishop.col;
   let row = bishop.row;
 
+  //We split the movement to 4 directions because it will be easier later to detect other pieces with this method
   while (col > 0 && row > 0)
   {
     col--;
     row--;
-
-    if (chessBoard.getPiece(row, col) === null)
-    {
-      cords += String(row + "-" + col + ",");
-    }
-    else
-    {
-      break;
-    }
+    cords += String(row + "-" + col + ",");
   }
 
   col = bishop.col;
@@ -278,15 +220,7 @@ function bishopMoves(bishop)
   {
     col++;
     row++;
-
-    if (chessBoard.getPiece(row, col) === null)
-    {
-      cords += String(row + "-" + col + ",");
-    }
-    else
-    {
-      break;
-    }
+    cords += String(row + "-" + col + ",");
   }
 
   col = bishop.col;
@@ -296,15 +230,7 @@ function bishopMoves(bishop)
   {
     col++;
     row--;
-
-    if (chessBoard.getPiece(row, col) === null)
-    {
-      cords += String(row + "-" + col + ",");
-    }
-    else
-    {
-      break;
-    }
+    cords += String(row + "-" + col + ",");
   }
 
   col = bishop.col;
@@ -314,15 +240,7 @@ function bishopMoves(bishop)
   {
     col--;
     row++;
-
-    if (chessBoard.getPiece(row, col) === null)
-    {
-      cords += String(row + "-" + col + ",");
-    }
-    else
-    {
-      break;
-    }
+    cords += String(row + "-" + col + ",");
   }
 
   return checkCords(cords);
@@ -333,11 +251,11 @@ function knightBranch(anchorNum, brnachNum, isBranchCol)
   let cords = "";  
   if (brnachNum + 1 < DIMENSIONS)
   {
-    if (isBranchCol && chessBoard.getPiece(anchorNum, brnachNum + 1) === null)
+    if (isBranchCol) //checks if we branch the movement on the columns or the rows
     {
       cords += String((anchorNum) + "-" + (brnachNum + 1) + ",");
     }
-    else if (!isBranchCol && chessBoard.getPiece(brnachNum + 1, anchorNum) === null)
+    else if (!isBranchCol)
     {
       cords += String((brnachNum + 1) + "-" + (anchorNum) + ",");
     }
@@ -345,11 +263,11 @@ function knightBranch(anchorNum, brnachNum, isBranchCol)
 
   if (brnachNum - 1 >= 0)
   {
-    if (isBranchCol && chessBoard.getPiece(anchorNum, brnachNum - 1) === null)
+    if (isBranchCol)
     {
       cords += String((anchorNum) + "-" + (brnachNum - 1) + ",");
     }
-    else if (!isBranchCol && chessBoard.getPiece(brnachNum - 1, anchorNum) === null)
+    else if (!isBranchCol)
     {
       cords += String((brnachNum - 1) + "-" + (anchorNum) + ",");
     }
@@ -363,6 +281,7 @@ function knightMoves(knight)
   let row = knight.row;
   let col = knight.col;
 
+  //The knight movement was implemented with 2 steps, 1: you would take it 2 tiles away on one of the x/y axis 2: move one tile to each side (knightBranch function)
   if (col + 2 < DIMENSIONS)
   {
     cords += knightBranch(col + 2, row, false);
@@ -389,11 +308,11 @@ function knightMoves(knight)
 function kingRow(row, col)
 {
   let cords = "";
-  if (col - 1 >= 0 && chessBoard.getPiece(row, col - 1) === null)
+  if (col - 1 >= 0)
   {
       cords += String((row) + "-" + (col - 1) + ",");
   }
-  if (col + 1 < DIMENSIONS && chessBoard.getPiece(row, col + 1) === null)
+  if (col + 1 < DIMENSIONS)
   {
     cords += String((row) + "-" + (col + 1) + ",");
 
@@ -412,21 +331,14 @@ function kingMoves(king)
 
   if (row + 1 < DIMENSIONS)
   {
-    if (chessBoard.getPiece(row + 1, col) === null)
-    {
       cords += String((row + 1) + "-" + (col) + ",");
-    }
-    cords += kingRow(row + 1, col) 
+      cords += kingRow(row + 1, col); 
   }
 
   if (row - 1 >= 0)
   {
     cords += kingRow(row - 1, col);
-
-    if (chessBoard.getPiece(row - 1, col) === null)
-    {
-      cords += String((row - 1) + "-" + (col) + ",");
-    }
+    cords += String((row - 1) + "-" + (col) + ",");
   }
 
   return checkCords(cords);
@@ -453,7 +365,8 @@ function availableMoves(chessPiece)
   }
   else if (chessPiece.type === "queen")
   {
-    return bishopMoves(chessPiece) + rookMoves(chessPiece);
+    //Queen has the combined moves of bishop and rook
+    return bishopMoves(chessPiece) + rookMoves(chessPiece); 
   }
   else if (chessPiece.type === "knight")
   {
@@ -473,12 +386,9 @@ function resetMarkers()
 }
 
 function tileClicked(rowIndex, columnIndex) {
-  let selectedTile = document.getElementById(
-    String(rowIndex + "-" + columnIndex)
-  );
+  let selectedTile = document.getElementById(String(rowIndex + "-" + columnIndex));
 
   resetMarkers();
-
   let previousTile = document.getElementsByClassName("selected")[0];
 
   if (previousTile) {
@@ -486,14 +396,13 @@ function tileClicked(rowIndex, columnIndex) {
   }
 
   selectedTile.classList.add("selected");
-
-  let piece = chessBoard.board[rowIndex * DIMENSIONS + columnIndex];
+  let piece = chessBoard.getPiece(rowIndex, columnIndex);
   
   if (piece)
   {
     let tileCords = availableMoves(piece);
 
-    if (tileCords !== "-1")
+    if (tileCords !== NO_LEGAL_MOVES)
     {
       tileCords = tileCords.split(",");
       tileCords.pop();
