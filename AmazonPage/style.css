@@ -1,0 +1,123 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+.inline-link {
+    display: inline-flex;
+}
+
+#upper-page {
+    height: 120px;
+}
+
+#upper-page-essentials {
+    display: flex;
+    align-items: center;
+    background-color: #192832;
+    height: 80px;
+}
+
+#location-link {
+    margin-right: 5%;
+    text-decoration: none;
+}
+
+#location-text {
+    margin-top: 20px;
+    color: white;
+    white-space: pre;
+}
+
+.search-container {
+    display: inline-flex;
+    align-items: center;
+    height: 70%;
+    border-radius: 8px 8px 8px 8px;
+
+}
+
+.search-container:hover {
+    border: 3px #edb553 solid;
+}
+
+.search-items {
+    height: 100%;
+}
+
+
+#select-button {
+    border-radius: 8px 0px 0px 8px;
+}
+
+#search-bar {
+    text-align: center;
+    font-size: 150%;
+    border: 1px solid gray;
+    background: #f1f1f1;
+    width: 40vw;
+
+}
+
+
+#search-button {
+    width: 80px;
+    border: 1px solid gray;
+    background-color: #edb553;
+    border-radius: 0px 8px 8px 0px;
+}
+
+#search-button:hover {
+    cursor: pointer;
+    background-color: #f29900;
+}
+
+
+#upper-page-toolset {
+    background-color: #19466e;
+    height: 30px;
+}
+
+#photos-section {
+    margin-right: 200px;
+}
+
+.photos-container {
+    float: left;
+}
+
+
+#big-photo-id {
+    display: block;
+}
+
+#photo-roller-div {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.roller-img {
+    margin: 0% 2%;
+    display: inline;
+    width: 60px;
+    height: 60px;
+    border: 1px gray solid;
+}
+
+.roller-img:hover {
+    border: 2px orange solid;
+    cursor: pointer;
+}
+
+#item-description {
+    font-size: 40px;
+    font-weight: 7000;
+    margin-top: 20px;
+}
+
+#rating-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
