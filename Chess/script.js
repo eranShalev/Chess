@@ -191,142 +191,78 @@ function pawnMoves(pawn) {
   return checkCords(cords);
 }
 
+function individualMoveInDirection(row, col, color) {
+  let result = [true, ""];
+  if (col < DIMENSIONS && col >= 0 && row >= 0 && row < DIMENSIONS)
+  {
+    if (chessBoard.emptyTile(row, col)) {
+      result[1] = String(row + "-" + col + ",");
+    }
+    else {
+      if (chessBoard.isEnemy(row, col, color)) {
+        result[1] = String(row + "-" + col + ",");
+      }
+      result[0] = false;
+    }
+  }
+  else {
+    result[0] = false;
+  }
+  
+
+  return result;
+}
+
 function rookMoves(rook) {
   let cords = "";
   let col = rook.col;
   let row = rook.row;
+  let result = [];
+  let direction = [0, 1, 0, -1, 1, 0, -1, 0];
 
-  //We split the movement to 4 directions because it will be easier later to detect other pieces with this method
-  while (col > 0) //scans to the left
+  for (let i = 0; i < 4; i++)
   {
-    if (chessBoard.emptyTile(rook.row, col - 1)) {
-      cords += String((rook.row) + "-" + (col - 1) + ",");
-    }
-    else {
-      if (chessBoard.isEnemy(rook.row, col - 1, rook.color)) {
-        cords += String((rook.row) + "-" + (col - 1) + ",");
+    col = rook.col;
+    row = rook.row;
+    while (true)
+    {
+      col += direction[i * 2];
+      row += direction[i * 2 + 1];
+      result = individualMoveInDirection(row, col, rook.color);
+      cords += result[1];
+      if (!result[0])
+      {
+        break;
       }
-      break;
     }
-    col--;
   }
-
-  col = rook.col;
-  while (col < DIMENSIONS - 1) //scans to the right
-  {
-    if (chessBoard.emptyTile(rook.row, col + 1)) {
-      cords += String((rook.row) + "-" + (col + 1) + ",");
-    }
-    else {
-      if (chessBoard.isEnemy(rook.row, col + 1, rook.color)) {
-        cords += String((rook.row) + "-" + (col + 1) + ",");
-      }
-      break;
-    }
-
-    col++;
-  }
-
-  while (row < DIMENSIONS - 1) //scans upward
-  {
-    if (chessBoard.emptyTile(row + 1, rook.col)) {
-      cords += String((row + 1) + "-" + (rook.col) + ",");
-    }
-    else {
-      if (chessBoard.isEnemy(row + 1, rook.col, rook.color)) {
-        cords += String((row + 1) + "-" + (rook.col) + ",");
-      }
-      break;
-    }
-    row++;
-  }
-
-  row = rook.row;
-  while (row > 0) //scans downward
-  {
-    if (chessBoard.emptyTile(row - 1, rook.col)) {
-      cords += String((row - 1) + "-" + (rook.col) + ",");
-    }
-    else {
-      if (chessBoard.isEnemy(row - 1, rook.col, rook.color)) {
-        cords += String((row - 1) + "-" + (rook.col) + ",");
-      }
-      break;
-    }
-    row--;
-  }
-
   return checkCords(cords);
 }
 
-function individualBishopMove(row, col, color) {
-  let result = [true, ""];
-  if (chessBoard.emptyTile(row, col)) {
-    result[1] = String(row + "-" + col + ",");
-  }
-  else {
-    if (chessBoard.isEnemy(row, col, color)) {
-      result[1] = String(row + "-" + col + ",");
-    }
-    result[0] = false;
-  }
 
-  return result;
-}
 
 function bishopMoves(bishop) {
   let cords = "";
   let col = bishop.col;
   let row = bishop.row;
+  let result = [];
+  let direction = [-1, -1, 1, 1, 1, -1, -1, 1]
 
-  //We split the movement to 4 directions because it will be easier later to detect other pieces with this method
-  while (col > 0 && row > 0) {
-    col--;
-    row--;
-    let result = individualBishopMove(row, col, bishop.color);
-    cords += result[1];
-    if (!result[0]) {
-      break;
+  for (let i = 0; i < 4; i++)
+  {
+    col = bishop.col;
+    row = bishop.row;
+    while (true)
+    {
+      col += direction[i * 2];
+      row += direction[i * 2 + 1];
+      result = individualMoveInDirection(row, col, bishop.color);
+      cords += result[1];
+      if (!result[0])
+      {
+        break;
+      }
     }
-  }
-
-  col = bishop.col;
-  row = bishop.row;
-
-  while (col < DIMENSIONS - 1 && row < DIMENSIONS - 1) {
-    col++;
-    row++;
-    let result = individualBishopMove(row, col, bishop.color);
-    cords += result[1];
-    if (!result[0]) {
-      break;
-    }
-  }
-
-  col = bishop.col;
-  row = bishop.row;
-
-  while (col < DIMENSIONS - 1 && row > 0) {
-    col++;
-    row--;
-    let result = individualBishopMove(row, col, bishop.color);
-    cords += result[1];
-    if (!result[0]) {
-      break;
-    }
-  }
-
-  col = bishop.col;
-  row = bishop.row;
-
-  while (col > 0 && row < DIMENSIONS - 1) {
-    col--;
-    row++;
-    let result = individualBishopMove(row, col, bishop.color);
-    cords += result[1];
-    if (!result[0]) {
-      break;
-    }  
   }
 
   return checkCords(cords);
@@ -467,8 +403,6 @@ function tileClicked(rowIndex, columnIndex) {
   if (previousTile) {
     previousTile.classList.remove("selected");
   }
-
-  console.log(previousCords);
 
   if (selectedTile.classList.contains("optional-move"))
   {
