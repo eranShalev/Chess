@@ -75,7 +75,7 @@ class BoardData {
   }
 }
 
-let chessBoard = new BoardData();
+let chessBoard = new BoardData(); //this object contains the logic of the board and all the pieces
 
 window.onload = () => {
   let main_container = document.createElement("div");
@@ -170,9 +170,9 @@ function forwardMove(row, col, color) {
   return cords;
 }
 
-function pawnMoves(pawn) {
+function pawnMoves(pawn)
+ {
   let cords = forwardMove(pawn.row, pawn.col, pawn.color);
-
   if (cords !== "") {
     // Checks for double move at start of game
     if (pawn.color === WHITE_PLAYER && pawn.row === 1) {
@@ -188,7 +188,7 @@ function pawnMoves(pawn) {
   else {
     cords += pawnAttack(pawn.row - 1, pawn.col, pawn.color);
   }
-  return checkCords(cords);
+  return cords;
 }
 
 function individualMoveInDirection(row, col, color) {
@@ -208,7 +208,6 @@ function individualMoveInDirection(row, col, color) {
   else {
     result[0] = false;
   }
-  
 
   return result;
 }
@@ -239,8 +238,6 @@ function rookMoves(rook) {
   return checkCords(cords);
 }
 
-
-
 function bishopMoves(bishop) {
   let cords = "";
   let col = bishop.col;
@@ -265,29 +262,6 @@ function bishopMoves(bishop) {
     }
   }
 
-  return checkCords(cords);
-}
-
-function knightBranch(anchorNum, brnachNum, isBranchCol, color) {
-  let cords = "";
-  if (brnachNum + 1 < DIMENSIONS) {
-    if (isBranchCol && !chessBoard.isTeam(anchorNum, brnachNum + 1, color)) //checks if we branch the movement on the columns or the rows
-    {
-      cords += String((anchorNum) + "-" + (brnachNum + 1) + ",");
-    }
-    else if (!isBranchCol && !(chessBoard.isTeam(brnachNum + 1, anchorNum, color))) {
-      cords += String((brnachNum + 1) + "-" + (anchorNum) + ",");
-    }
-  }
-
-  if (brnachNum - 1 >= 0) {
-    if (isBranchCol && !chessBoard.isTeam(anchorNum, brnachNum - 1, color)) {
-      cords += String((anchorNum) + "-" + (brnachNum - 1) + ",");
-    }
-    else if (!isBranchCol &&!chessBoard.isTeam(brnachNum - 1, anchorNum, color)) {
-      cords += String((brnachNum - 1) + "-" + (anchorNum) + ",");
-    }
-  }
   return cords;
 }
 
@@ -295,25 +269,24 @@ function knightMoves(knight) {
   let cords = "";
   let row = knight.row;
   let col = knight.col;
+  let direction = [2, 0, -2, 0, 0, 2, 0, -2];
 
-  //The knight movement was implemented with 2 steps, 1: you would take it 2 tiles away on one of the x/y axis 2: move one tile to each side (knightBranch function)
-  if (col + 2 < DIMENSIONS) {
-    cords += knightBranch(col + 2, row, false, knight.color);
+  for (let i = 0; i < 4; i++)
+  {
+    row = knight.row;
+    col = knight.col;
+    if (direction[i * 2] === 0)
+    {
+      cords += individualMoveInDirection(row + 1, col + direction[i * 2 + 1], knight.color)[1];
+      cords += individualMoveInDirection(row - 1, col + direction[i * 2 + 1], knight.color)[1];
+    }
+    else
+    {
+      cords += individualMoveInDirection(row + direction[i * 2], col + 1, knight.color)[1];
+      cords += individualMoveInDirection(row + direction[i * 2], col - 1, knight.color)[1];
+    }
   }
-
-  if (row + 2 < DIMENSIONS) {
-    cords += knightBranch(row + 2, col, true, knight.color)
-  }
-
-  if (col - 2 >= 0) {
-    cords += knightBranch(col - 2, row, false, knight.color);
-  }
-
-  if (row - 2 >= 0) {
-    cords += knightBranch(row - 2, col, true, knight.color);
-  }
-
-  return checkCords(cords);
+  return cords;
 }
 
 function kingRow(row, col, color) {
@@ -343,7 +316,7 @@ function kingMoves(king) {
       cords += kingRow(row + offset, col, king.color);
     }
   }
-  return checkCords(cords);
+  return cords;
 }
 
 function checkCords(cords) {
@@ -352,40 +325,23 @@ function checkCords(cords) {
 
 function availableMoves(chessPiece) {
   if (chessPiece.type === "pawn") {
-    return pawnMoves(chessPiece);
+    return checkCords(pawnMoves(chessPiece));
   }
   else if (chessPiece.type === "rook") {
-    return rookMoves(chessPiece);
+    return checkCords(rookMoves(chessPiece));
   }
   else if (chessPiece.type === "bishop") {
-    return bishopMoves(chessPiece);
+    return checkCords(bishopMoves(chessPiece));
   }
   else if (chessPiece.type === "queen") {
     //Queen has the combined moves of bishop and rook
-    let cords = "";
-    let bishopCords = bishopMoves(chessPiece);
-    let rookCords = rookMoves(chessPiece);
-    if (bishopCords !== NO_LEGAL_MOVES)
-    {
-      cords += bishopCords;
-      
-    }
-    if (rookCords !== NO_LEGAL_MOVES)
-    {
-        cords += rookCords
-    }
-
-    if (cords === "")
-    {
-      cords = NO_LEGAL_MOVES;
-    }
-    return cords;
+    return checkCords(bishopMoves(chessPiece) + rookMoves(chessPiece));
   }
   else if (chessPiece.type === "knight") {
-    return knightMoves(chessPiece);
+    return checkCords(knightMoves(chessPiece));
   }
   else {
-    return kingMoves(chessPiece);
+    return checkCords(kingMoves(chessPiece));
   }
 }
 
@@ -413,7 +369,6 @@ function tileClicked(rowIndex, columnIndex) {
       whiteTurn = !whiteTurn;
     }
     resetMarkers();
-
   }  
   else
   {
@@ -434,6 +389,5 @@ function tileClicked(rowIndex, columnIndex) {
       }
     }
   }
-  
   previousCords = [rowIndex, columnIndex];
 }
