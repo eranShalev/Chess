@@ -4,17 +4,18 @@ const WHITE_PLAYER = "white";
 const NO_LEGAL_MOVES = "-1";
 let previousCords = [-1, -1];
 let whiteTurn = true;
+let winner = undefined;
+const CHESS_TABLE_ID = "chess-table-id";
 
 let chessBoard = new BoardData(); //this object contains the logic of the board and all the pieces
 
+
+
 window.onload = () => {
-  let main_container = document.createElement("div");
-  main_container.className = "table-container";
-
-  document.body.appendChild(main_container);
   let play_table = document.createElement("table");
+  play_table.id = CHESS_TABLE_ID;
 
-  main_container.appendChild(play_table);
+  document.body.appendChild(play_table);
   generateHeaders(play_table); //The headers are used for coordinates 
 
   for (let i = DIMENSIONS - 1; i >= 0; i--) {
@@ -52,6 +53,7 @@ function chessRow(row, rowIndex) {
     {
       let image = document.createElement("img");
       image.src = getImageSrc(piece.type, piece.color);
+      image.draggable = false;
       tile.appendChild(image);
     }
 
@@ -79,36 +81,52 @@ function resetMarkers() {
 }
 
 function tileClicked(rowIndex, columnIndex) {
-  let selectedTile = document.getElementById(String(rowIndex + "-" + columnIndex));
+  if (winner === undefined) {
+    let selectedTile = document.getElementById(String(rowIndex + "-" + columnIndex));
 
-  let previousTile = document.getElementsByClassName("selected")[0];
-  if (previousTile) {
-    previousTile.classList.remove("selected");
-  }
-
-  if (selectedTile.classList.contains("optional-move")) {
-    let previousPiece = chessBoard.getPiece(previousCords[0], previousCords[1]);
-    if ((previousPiece.color === WHITE_PLAYER && whiteTurn) || (previousPiece.color === BLACK_PLAYER && !whiteTurn)) {
-      chessBoard.MovePiece(previousPiece, rowIndex, columnIndex);
-      whiteTurn = !whiteTurn;
+    let previousTile = document.getElementsByClassName("selected")[0];
+    if (previousTile) {
+      previousTile.classList.remove("selected");
     }
-    resetMarkers();
-  }
-  else {
-    resetMarkers();
-    selectedTile.classList.add("selected");
-    let piece = chessBoard.getPiece(rowIndex, columnIndex);
 
-    if (piece !== null) {
-      let tileCords = piece.availableMoves(piece);
+    if (selectedTile.classList.contains("optional-move")) {
+      let previousPiece = chessBoard.getPiece(previousCords[0], previousCords[1]);
+      if ((previousPiece.color === WHITE_PLAYER && whiteTurn) || (previousPiece.color === BLACK_PLAYER && !whiteTurn)) {
+        let removedPiece = chessBoard.MovePiece(previousPiece, rowIndex, columnIndex);
+        if (removedPiece !== null && removedPiece.type === "king") {
+          winnerDecided();
+        }
+        whiteTurn = !whiteTurn;
+      }
+      resetMarkers();
+    }
+    else {
+      resetMarkers();
+      selectedTile.classList.add("selected");
+      let piece = chessBoard.getPiece(rowIndex, columnIndex);
 
-      if (tileCords !== NO_LEGAL_MOVES) {
-        tileCords.pop();
-        for (let cord of tileCords) {
-          document.getElementById(cord).classList.add("optional-move");
+      if (piece !== null) {
+        let tileCords = piece.availableMoves(piece);
+
+        if (tileCords !== NO_LEGAL_MOVES) {
+          tileCords.pop();
+          for (let cord of tileCords) {
+            document.getElementById(cord).classList.add("optional-move");
+          }
         }
       }
     }
+    previousCords = [rowIndex, columnIndex];
   }
-  previousCords = [rowIndex, columnIndex];
+}
+
+function winnerDecided()
+{
+  let winnerPopup = document.createElement("div");
+
+  winner = whiteTurn ? WHITE_PLAYER : BLACK_PLAYER;
+  winnerPopup.innerText = winner + " player won!";
+  winnerPopup.className = "winner-popup";
+  document.getElementById(CHESS_TABLE_ID).appendChild(winnerPopup);
+  
 }

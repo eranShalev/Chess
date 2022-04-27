@@ -33,12 +33,14 @@ class BoardData {
     MovePiece(piece, newRow, newCol) {
       let image = document.getElementById(String(piece.row + "-" + piece.col)).getElementsByTagName("img")[0];
       let newTile = document.getElementById(String(newRow + "-" + newCol));
-      if (this.getPiece(newRow, newCol)) {
+      let removedPiece = this.getPiece(newRow, newCol);
+      if (removedPiece !== null) {
         newTile.removeChild(newTile.getElementsByTagName("img")[0]);
       }
       newTile.appendChild(image);
       this.board[newRow * DIMENSIONS + newCol] = new Piece(newRow, newCol, piece.color, piece.type);
       this.board[piece.row * DIMENSIONS + piece.col] = null;
+      return removedPiece;
     }
   
     emptyTile(row, col) {

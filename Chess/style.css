@@ -4,10 +4,16 @@ td {
   height: 60px;
   text-align: center;
 }
+body {
+  display: flex;
+  height: 100vh;
+}
 
 table {
   border-spacing: 0;
   background-color: #661f34;
+  position: relative;
+  margin: auto;
 }
 th {
   padding: 15px 25px;
@@ -20,12 +26,6 @@ th {
   background-color: #d3ccbc;
 }
 
-.table-container {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 
 .selected {
   border: 1px red solid;
@@ -33,4 +33,15 @@ th {
 
 .optional-move {
   background-color: #ccdd35;
+}
+
+.winner-popup {
+  position: absolute;
+  top : 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgb(65, 166, 206);
+  padding: 50px;
+  border-radius: 10px;
+  width: max-content;
 }
