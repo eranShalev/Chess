@@ -1,29 +1,24 @@
 const DIMENSIONS = 8;
 const BLACK_PLAYER = "black";
 const WHITE_PLAYER = "white";
-const NO_LEGAL_MOVES = "-1";
-let previousCords = [-1, -1];
+let previousPiece = null;
 let whiteTurn = true;
 let winner = undefined;
 const CHESS_TABLE_ID = "chess-table-id";
 
 let chessBoard = new BoardData(); //this object contains the logic of the board and all the pieces
 
-
-
 window.onload = () => {
   let play_table = document.createElement("table");
   play_table.id = CHESS_TABLE_ID;
 
   document.body.appendChild(play_table);
-  generateHeaders(play_table); //The headers are used for coordinates 
+  generateHeaders(play_table); //The headers are used for user - experience coordinates
 
   for (let i = DIMENSIONS - 1; i >= 0; i--) {
-    let row = document.createElement("tr");
-    play_table.appendChild(row);
+    const row = play_table.insertRow();
     chessRow(row, i);
   }
-
   generateHeaders(play_table);
 };
 
@@ -44,9 +39,9 @@ function addHeader(parentNode, content) {
 }
 
 function chessRow(row, rowIndex) {
-  addHeader(row, rowIndex);
+  addHeader(row, rowIndex + 1);
   for (let col = 0; col < DIMENSIONS; col++) {
-    let tile = document.createElement("td");
+    const tile = row.insertCell();
     let piece = chessBoard.getPiece(rowIndex, col);
 
     if (piece) // If a chess piece exists we need an image for it
@@ -68,15 +63,15 @@ function chessRow(row, rowIndex) {
     tile.addEventListener("click", () => {
       tileClicked(rowIndex, col);
     });
-
-    row.appendChild(tile);
   }
   addHeader(row, rowIndex);
 }
 
+// Clears the CSS from the board
 function resetMarkers() {
   for (let tile of document.getElementsByTagName("td")) {
     tile.classList.remove("optional-move");
+    tile.classList.remove("selected");
   }
 }
 
@@ -84,13 +79,8 @@ function tileClicked(rowIndex, columnIndex) {
   if (winner === undefined) {
     let selectedTile = document.getElementById(String(rowIndex + "-" + columnIndex));
 
-    let previousTile = document.getElementsByClassName("selected")[0];
-    if (previousTile) {
-      previousTile.classList.remove("selected");
-    }
-
+    //checks if the tile was clicked for piece movement
     if (selectedTile.classList.contains("optional-move")) {
-      let previousPiece = chessBoard.getPiece(previousCords[0], previousCords[1]);
       if ((previousPiece.color === WHITE_PLAYER && whiteTurn) || (previousPiece.color === BLACK_PLAYER && !whiteTurn)) {
         let removedPiece = chessBoard.MovePiece(previousPiece, rowIndex, columnIndex);
         if (removedPiece !== null && removedPiece.type === "king") {
@@ -107,26 +97,22 @@ function tileClicked(rowIndex, columnIndex) {
 
       if (piece !== null) {
         let tileCords = piece.availableMoves(piece);
-
         if (tileCords !== NO_LEGAL_MOVES) {
-          tileCords.pop();
           for (let cord of tileCords) {
             document.getElementById(cord).classList.add("optional-move");
           }
         }
       }
+      previousPiece = piece;
     }
-    previousCords = [rowIndex, columnIndex];
   }
 }
 
-function winnerDecided()
-{
+function winnerDecided() {
   let winnerPopup = document.createElement("div");
 
   winner = whiteTurn ? WHITE_PLAYER : BLACK_PLAYER;
   winnerPopup.innerText = winner + " player won!";
   winnerPopup.className = "winner-popup";
   document.getElementById(CHESS_TABLE_ID).appendChild(winnerPopup);
-  
 }

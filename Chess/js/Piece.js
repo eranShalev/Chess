@@ -6,12 +6,16 @@ class Piece {
     this.type = type;
   }
 
+  //the pawn captures pieces in a different direction of its movement which means we need a separate check from its movement.
   pawnAttack(row) {
     let cords = "";
+
+    // checks right side of pawn
     if (chessBoard.isEnemy(row, this.col + 1, this.color)) {
       cords += String(row + "-" + (this.col + 1) + ",");
     }
 
+    // checks left side of pawn
     if (chessBoard.isEnemy(row, this.col - 1, this.color)) {
       cords += String(row + "-" + (this.col - 1) + ",");
     }
@@ -20,7 +24,7 @@ class Piece {
 
   forwardMove(row, direction) {
     let cords = "";
-    if (row < DIMENSIONS - 1 && chessBoard.emptyTile(row + direction, this.col)) {
+    if (row < DIMENSIONS - 1 && row > 0 && chessBoard.emptyTile(row + direction, this.col)) {
       cords = String((row + direction) + "-" + this.col + ",");
     }
     return cords;
@@ -32,10 +36,7 @@ class Piece {
 
     if (cords !== "") {
       // Checks for double move at start of game
-      if (this.color === WHITE_PLAYER && this.row === 1) {
-        cords += this.forwardMove(this.row + direction, direction);
-      }
-      else if (this.color === BLACK_PLAYER && this.row === DIMENSIONS - 2) {
+      if (this.row === 1 || this.row === 6) {
         cords += this.forwardMove(this.row + direction, direction);
       }
     }
@@ -44,7 +45,7 @@ class Piece {
   }
 
   individualMoveInDirection(row, col) {
-    let result = [true, ""];
+    let result = [true, ""]; //first cell of result determines if we keep moving or stopping and the second cell is the coordinate we add for possible moves 
     if (col < DIMENSIONS && col >= 0 && row >= 0 && row < DIMENSIONS) {
       if (chessBoard.emptyTile(row, col)) {
         result[1] = String(row + "-" + col + ",");
@@ -66,7 +67,7 @@ class Piece {
   rookMoves() {
     let cords = "";
     let result = [];
-    let direction = [0, 1, 0, -1, 1, 0, -1, 0];
+    let direction = [0, 1, 0, -1, 1, 0, -1, 0]; //each 2 cells represent a direction first one for x axis and second one for y axis
 
     for (let i = 0; i < 4; i++) {
       let col = this.col;
@@ -87,7 +88,7 @@ class Piece {
   bishopMoves() {
     let cords = "";
     let result = [];
-    let direction = [-1, -1, 1, 1, 1, -1, -1, 1]
+    let direction = [-1, -1, 1, 1, 1, -1, -1, 1] //each 2 cells represent a direction first one for x axis and second one for y axis
 
     for (let i = 0; i < 4; i++) {
       let col = this.col;
@@ -137,6 +138,7 @@ class Piece {
   kingMoves() {
     let cords = "";
 
+    // the king's movement can be broken down to 3 rows of 3 cells each which the center is the king, this for loop represents each row
     for (let offset = -1; offset <= 1; offset++) {
       if (this.row + offset < DIMENSIONS && this.row + offset >= 0) {
         cords += this.kingRow(this.row + offset);
@@ -146,7 +148,12 @@ class Piece {
   }
 
   checkCords(cords) {
-    return cords !== "" ? cords.split(",") : NO_LEGAL_MOVES;
+    if (cords !== "") {
+      cords = cords.split(",");
+      cords.pop();
+      return cords;
+    }
+    return NO_LEGAL_MOVES;
   }
 
   availableMoves() {

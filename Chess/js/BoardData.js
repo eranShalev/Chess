@@ -1,14 +1,17 @@
+//the chess board is represented by a 1 dimensional array of 64 cells, null cells are empty tiles and cells with pieces are tiles with chess pieces
+
+const NO_LEGAL_MOVES = "-1";
 class BoardData {
     constructor() {
       this.board = this.boardReset();
     }
   
+    // Makes a starting chess board
     boardReset() {
       const values = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"];
   
       let board = Array(DIMENSIONS * DIMENSIONS).fill(null);
   
-      // Makes a starting chess board
       for (let colIndex = 0; colIndex < DIMENSIONS; colIndex++) {
         board[colIndex + DIMENSIONS] = new Piece(1, colIndex, WHITE_PLAYER, "pawn");
   
@@ -20,7 +23,8 @@ class BoardData {
       }
       return board;
     }
-  
+    
+    // Returns a piece in the table array in the appropriate coordinations
     getPiece(row, col) {
       if (row >= 0 && row <= DIMENSIONS - 1 && col >= 0 && col <= DIMENSIONS - 1) {
         return this.board[row * DIMENSIONS + col];
@@ -30,6 +34,7 @@ class BoardData {
       }
     }
   
+    // Moves the piece to the new location and updates the array, then returns the captured piece
     MovePiece(piece, newRow, newCol) {
       let image = document.getElementById(String(piece.row + "-" + piece.col)).getElementsByTagName("img")[0];
       let newTile = document.getElementById(String(newRow + "-" + newCol));
@@ -37,7 +42,7 @@ class BoardData {
       if (removedPiece !== null) {
         newTile.removeChild(newTile.getElementsByTagName("img")[0]);
       }
-      newTile.appendChild(image);
+      newTile.appendChild(image); // No need to remove the image from the old tile because appendChild works by reference
       this.board[newRow * DIMENSIONS + newCol] = new Piece(newRow, newCol, piece.color, piece.type);
       this.board[piece.row * DIMENSIONS + piece.col] = null;
       return removedPiece;
